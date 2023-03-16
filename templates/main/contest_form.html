@@ -3,7 +3,11 @@
 
 {% block content %}
     <h1>Add/Edit contest</h1>
-    <form method="post" action="{% url 'contest_add' %}">
+    <form method="post" action="{% if contest %}
+        {% url 'main:edit_contest' contest.id %}
+        {% else %}
+        {% url 'main:add_contest' %}
+    {% endif %} ">
         {% csrf_token %}
         {{ form.as_p }}
         <input type="submit" value="Save"/>

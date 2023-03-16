@@ -20,8 +20,8 @@ class Contest(models.Model):
     name = models.CharField(max_length=200)
     judge = models.CharField(max_length=50, choices=JUDGE_CHOICES)
     start_time = models.DateTimeField()
-    end_time = models.DateTimeField()
-    description = models.TextField()
+    end_time = models.DateTimeField(null=True, blank=True)
+    description = models.TextField(null=True, blank=True)
     url = models.URLField()
     unique_id = models.CharField(max_length=200)
 
