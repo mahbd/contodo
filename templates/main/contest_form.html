@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% block title %}Add/Edit contest{% endblock title %}
+
+{% block content %}
+    <h1>Add/Edit contest</h1>
+    <form method="post" action="{% url 'contest_add' %}">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <input type="submit" value="Save"/>
+    </form>
+{% endblock content %}
