@@ -28,6 +28,9 @@ class Contest(models.Model):
     def __str__(self):
         return self.name
 
+    class Meta:
+        ordering = ['start_time']
+
 
 class PushedContest(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
