@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.db import models
+from django.utils import timezone
 
 User = get_user_model()
 
@@ -35,7 +36,8 @@ class Contest(models.Model):
 class PushedContest(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     contest = models.ForeignKey(Contest, on_delete=models.CASCADE)
-    pushed_time = models.DateTimeField()
+    task_id = models.CharField(max_length=200)
+    pushed_time = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
         return self.contest.name

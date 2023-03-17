@@ -1,11 +1,16 @@
 from datetime import timedelta
 
+from django.contrib.auth import get_user_model
 from django.shortcuts import render, redirect, get_object_or_404
+from django.utils import timezone
 
 from .scrapper import get_cf_contest_list, get_at_contest_list, get_lt_contest_list
+from .todoist import add_task
 from .forms import ContestForm
-from .models import Contest
+from .models import Contest, PushedContest
 
+
+User = get_user_model()
 
 def home(request):
     return render(request, 'main/home.html')
@@ -62,4 +67,25 @@ def fetch_contest(request):
                             start_time=contest[2] + bdt, unique_id=contest[1])
             c_obj.save()
             print('Contest added: ', contest[0])
+    return redirect('main:contest_list')
+
+
+def push_contest(request):
+    user_list = User.objects.all()
+    contest_list = Contest.objects.all()
+    for user in user_list:
+        if not user.todo_token:
+            continue
+        for contest in contest_list:
+            if contest.start_time < timezone.now():
+                continue
+            if PushedContest.objects.filter(user=user, contest=contest).exists():
+                continue
+            content = f"[{contest.name}]({contest.url})"
+            task_id = add_task(user.todo_token, content, contest.start_time)
+            if task_id:
+                PushedContest(user=user, contest=contest, task_id=task_id).save()
+                print('Task added: ', contest.name)
+            else:
+                print("Failed to add task: ", contest.name)
     return redirect('main:contest_list')

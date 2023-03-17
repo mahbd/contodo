@@ -10,4 +10,5 @@ urlpatterns = [
     path('contests/add/', views.add_contest, name='add_contest'),
     path('contests/<int:contest_id>/edit/', views.edit_contest, name='edit_contest'),
     path('contests/fetch/', views.fetch_contest, name='fetch_contest'),
+    path('contests/push/', views.push_contest, name='push_contest'),
 ]
