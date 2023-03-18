@@ -13,9 +13,11 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 import os
 from pathlib import Path
 
+from djongo.base import DatabaseWrapper
+from djongo.operations import DatabaseOperations
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
@@ -27,7 +29,6 @@ SECRET_KEY = os.environ.get('SECRET_KEY')
 DEBUG = True
 
 ALLOWED_HOSTS = []
-
 
 # Application definition
 
@@ -75,17 +76,30 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'contodo.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
+class PatchedDatabaseOperations(DatabaseOperations):
+
+    def conditional_expression_supported_in_where_clause(self, expression):
+        return False
+
+
+DatabaseWrapper.ops_class = PatchedDatabaseOperations
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'djongo',
+        'ENFORCE_SCHEMA': False,
+        'NAME': 'contodo',
+        'CLIENT': {
+            'host': os.environ.get('MONGO_CONTODO'),
+            'username': os.environ.get('MONGO_USERNAME'),
+            'password': os.environ.get('MONGO_PASSWORD'),
+            'authMechanism': 'SCRAM-SHA-1'
+        }
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
@@ -105,7 +119,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/4.1/topics/i18n/
 
@@ -116,7 +129,6 @@ TIME_ZONE = 'Asia/Dhaka'
 USE_I18N = True
 
 USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
