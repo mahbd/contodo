@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 
 import requests
+import pytz
 
 from bs4 import BeautifulSoup as bs
 
@@ -25,9 +26,11 @@ def get_cf_contest_list():
         year = timeLink[timeLink.find('year=') + 5:timeLink.find('&hour=')]
         hour = timeLink[timeLink.find('hour=') + 5:timeLink.find('&min=')]
         minute = timeLink[timeLink.find('min=') + 4:timeLink.find('&sec=')]
-        time = datetime(int(year), int(month), int(day), int(hour), int(minute)) + timedelta(hours=-3)
+        time = datetime(int(year), int(month), int(day), int(hour), int(minute)) + timedelta(hours=+3)
+        # make utc time
+        time = time.replace(tzinfo=pytz.timezone('Asia/Dhaka'))
         contestLink = f"https://codeforces.com/contests/{contestId}"
-        res.append((name, contestLink, time))
+        res.append([name, contestLink, time])
     return res
 
 
@@ -42,9 +45,11 @@ def get_at_contest_list():
         timeLink = contest.select_one('a')['href']
         nameLinkObj = contest.select('a')[1]
         iso_time = timeLink.split('=')[1].split('&')[0]
-        contest_time = datetime.strptime(iso_time, '%Y%m%dT%H%M') + timedelta(hours=-9)
+        contest_time = datetime.strptime(iso_time, '%Y%m%dT%H%M') + timedelta(hours=-3)
+        # make utc time
+        contest_time = contest_time.replace(tzinfo=pytz.timezone('Asia/Dhaka'))
         contestLink = f"https://atcoder.jp{nameLinkObj['href']}"
-        res.append((nameLinkObj.text.strip(), contestLink, contest_time))
+        res.append([nameLinkObj.text.strip(), contestLink, contest_time])
     return res
 
 
@@ -82,7 +87,9 @@ def get_lt_contest_list():
         link = contest.select_one('a')['href']
         name = contest.select_one('.truncate').text.strip()
         timeStr = contest.select_one('.text-\[14px\]').text
-        time = convert_time_str(timeStr)
+        time = convert_time_str(timeStr) + timedelta(hours=+6)
+        # make utc time
+        time = time.replace(tzinfo=pytz.timezone('Asia/Dhaka'))
         contestLink = f"https://leetcode.com{link}"
-        res.append((name, contestLink, time))
+        res.append([name, contestLink, time])
     return res
