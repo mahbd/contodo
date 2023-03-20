@@ -90,7 +90,7 @@ DatabaseWrapper.ops_class = PatchedDatabaseOperations
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'contodo',
+        'NAME': 'mahbd_contodo',
         'USER': os.environ.get('SQL_CON_USER'),
         'PASSWORD': os.environ.get('SQL_CON_PASSWORD'),
         'HOST': os.environ.get('SQL_CON_HOST'),
