@@ -28,7 +28,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG') or False
 
-ALLOWED_HOSTS = ["contodo.mahmudul.cf"]
+ALLOWED_HOSTS = ["contodo.mahmudul.cf", "127.0.0.1"]
 
 # Application definition
 
@@ -89,17 +89,15 @@ DatabaseWrapper.ops_class = PatchedDatabaseOperations
 
 DATABASES = {
     'default': {
-        'ENGINE': 'djongo',
-        'ENFORCE_SCHEMA': False,
+        'ENGINE': 'django.db.backends.mysql',
         'NAME': 'contodo',
-        'CLIENT': {
-            'host': os.environ.get('MONGO_CONTODO'),
-            'username': os.environ.get('MONGO_USERNAME'),
-            'password': os.environ.get('MONGO_PASSWORD'),
-            'authMechanism': 'SCRAM-SHA-1'
-        }
+        'USER': os.environ.get('SQL_CON_USER'),
+        'PASSWORD': os.environ.get('SQL_CON_PASSWORD'),
+        'HOST': os.environ.get('SQL_CON_HOST'),
+        'PORT': '3306',
     }
 }
+
 
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
