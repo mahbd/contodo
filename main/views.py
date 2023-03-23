@@ -1,11 +1,12 @@
 from datetime import timedelta
 
 from django.contrib.auth import get_user_model
+from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 
 from .scrapper import get_cf_contest_list, get_at_contest_list, get_lt_contest_list
-from .todoist import add_task
+from .todoist import add_task, edit_task
 from .forms import ContestForm
 from .models import Contest, PushedContest
 
@@ -52,13 +53,29 @@ def fetch_contest(request):
     lc_list = get_lt_contest_list()
     lc_list = [(contest[0], contest[1], contest[2], Contest.JUDGE_LC) for contest in lc_list]
     all_contest = cf_list + at_list + lc_list
+    fetch_cnt = 0
     for contest in all_contest:
-        if not Contest.objects.filter(unique_id=contest[1]).exists():
+        prev = Contest.objects.filter(unique_id=contest[1])
+        if prev:
+            if prev[0].start_time != contest[2]:
+                if prev[0].pushedcontest_set.all():
+                    for pushed_contest in prev[0].pushedcontest_set.all():
+                        token = pushed_contest.user.todo_token
+                        content = f"[{contest[0]}]({contest[1]})"
+                        if edit_task(token, content, contest[2], pushed_contest.task_id):
+                            prev[0].start_time = contest[2]
+                            prev[0].save()
+                            print('Contest updated: ', contest[0])
+                            fetch_cnt += 1
+                        else:
+                            print('Failed to update contest: ', contest[0])
+        else:
             c_obj = Contest(name=contest[0], judge=contest[3], url=contest[1],
                             start_time=contest[2], unique_id=contest[1])
             c_obj.save()
             print('Contest added: ', contest[0])
-    return redirect('main:contest_list')
+            fetch_cnt += 1
+    return HttpResponse(f'{fetch_cnt} contests fetched')
 
 
 def push_contest(request):
@@ -81,4 +98,4 @@ def push_contest(request):
                 print('Task added: ', contest.name)
             else:
                 print("Failed to add task: ", contest.name)
-    return redirect('main:contest_list')
+    return HttpResponse('Contest pushed')
