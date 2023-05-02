@@ -13,9 +13,6 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 import os
 from pathlib import Path
 
-from djongo.base import DatabaseWrapper
-from djongo.operations import DatabaseOperations
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -78,14 +75,6 @@ WSGI_APPLICATION = 'contodo.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
-
-class PatchedDatabaseOperations(DatabaseOperations):
-
-    def conditional_expression_supported_in_where_clause(self, expression):
-        return False
-
-
-DatabaseWrapper.ops_class = PatchedDatabaseOperations
 
 DATABASES = {
     'default': {
