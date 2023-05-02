@@ -3,3 +3,5 @@ Django>=4.0,<5.0
 requests
 tzdata
 mariadb
+daphne>=4.0,<5
+twisted[http2,tls]
