@@ -2,5 +2,4 @@ beautifulsoup4
 Django>=4.0,<5.0
 requests
 tzdata
-daphne
-mysqlclient
+mariadb
