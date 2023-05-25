@@ -8,4 +8,3 @@ class User(AbstractUser):
     at_handle = models.CharField(max_length=200, null=True, blank=True)
     lc_handle = models.CharField(max_length=200, null=True, blank=True)
     tp_handle = models.CharField(max_length=200, null=True, blank=True)
-

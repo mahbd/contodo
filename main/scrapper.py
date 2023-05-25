@@ -86,10 +86,10 @@ def get_lt_contest_list():
     for contest in contest_list:
         link = contest.select_one('a')['href']
         name = contest.select_one('.truncate').text.strip()
-        timeStr = contest.select_one('.text-\[14px\]').text
-        time = convert_time_str(timeStr) + timedelta(hours=+6)
+        time_str = contest.select_one(r'.text-\[14px\]').text
+        time = convert_time_str(time_str) + timedelta(hours=+6)
         # make utc time
         time = time.replace(tzinfo=pytz.timezone('Asia/Dhaka'))
-        contestLink = f"https://leetcode.com{link}"
-        res.append([name, contestLink, time])
+        contest_link = f"https://leetcode.com{link}"
+        res.append([name, contest_link, time])
     return res

@@ -1,12 +1,14 @@
 import json
-from datetime import datetime, timedelta
+from datetime import datetime
+
 import requests
 
 
 def add_task(token, content, time: datetime):
     data = {
         'due_string': str(time),
-        'content': content
+        'content': content,
+        'labels': ['cp']
     }
     headers = {
         'Authorization': f'Bearer {token}',
@@ -25,7 +27,7 @@ def edit_task(token, content, time: datetime, task_id):
     data = {
         'due_string': str(time),
         'content': content,
-        'is_completed': False,
+        'labels': ['cp']
     }
     headers = {
         'Authorization': f'Bearer {token}',

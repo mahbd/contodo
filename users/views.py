@@ -5,6 +5,7 @@ from .forms import UserRegisterForm, UserUpdateForm
 
 User = get_user_model()
 
+
 def register(request):
     if request.method == 'POST':
         form = UserRegisterForm(request.POST)
