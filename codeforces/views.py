@@ -21,9 +21,13 @@ def new_problem(sender, instance: TargetProblems, created, **kwargs):
 
 def statistics(request):
     users = CFUsers.objects.all().order_by('name')
-    problems = [[problem.problem_name].extend(
-        [solve.status for solve in problem.targetsolves_set.all().order_by('user__name')])
-        for problem in TargetProblems.objects.all().order_by('-date')]
+    problems = []
+    for problem in TargetProblems.objects.all().order_by('-date'):
+        problem_row = [problem.problem_name]
+        for solve in problem.targetsolves_set.all().order_by('user__name'):
+            problem_row.append(solve.status)
+        problems.append(problem_row)
+    print(problems)
     return render(request, 'codeforces/statistics.html', {
         'users': users,
         'problems': problems,

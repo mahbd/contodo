@@ -1,12 +1,38 @@
 from django.contrib import admin
 
+from .cf_api import get_submissions, update_last_online
 from .models import CFUsers, TargetProblems, TargetSolves, Submissions
 
 
 @admin.register(CFUsers)
 class CFUsersAdmin(admin.ModelAdmin):
+    actions = ['fetch_submissions', 'fetch_all_submissions', 'update_last_online']
     list_display = ('handle', 'name', 'photo', 'last_submission')
     search_fields = ('handle', 'name')
+
+    def fetch_submissions(self, request, queryset):
+        count = 0
+        for user in queryset:
+            count += get_submissions(user.handle, 100)
+        self.message_user(request, f'{count} new submissions added')
+
+    fetch_submissions.short_description = 'Fetch submissions'
+
+    def fetch_all_submissions(self, request, queryset):
+        count = 0
+        for user in queryset:
+            count += get_submissions(user.handle, 10000)
+        self.message_user(request, f'{count} new submissions added')
+
+    fetch_all_submissions.short_description = 'Fetch all submissions'
+
+    def update_last_online(self, request, queryset):
+        count = 0
+        for user in queryset:
+            count += update_last_online(user.handle)
+        self.message_user(request, f'{count} users updated')
+
+    update_last_online.short_description = 'Update last online'
 
 
 @admin.register(TargetProblems)
@@ -24,6 +50,6 @@ class TargetSolvesAdmin(admin.ModelAdmin):
 
 @admin.register(Submissions)
 class SubmissionsAdmin(admin.ModelAdmin):
-    list_display = ('problem_name', 'problem_link', 'user')
+    list_display = ('problem_name', 'user', 'problem_link', 'status')
     search_fields = ('problem_name', 'user__name', 'user__handle')
     list_filter = ('user', 'contest_id', 'problem_name')

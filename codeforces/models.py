@@ -6,6 +6,7 @@ class CFUsers(models.Model):
     name = models.CharField(max_length=255, blank=True, null=True)
     photo = models.URLField(max_length=255, blank=True, null=True)
     last_submission = models.BigIntegerField(blank=True, null=True)
+    last_online = models.DateTimeField(blank=True, null=True)
 
     def __str__(self):
         return self.handle
@@ -32,13 +33,21 @@ class TargetSolves(models.Model):
 class TargetProblems(models.Model):
     problem_name = models.CharField(max_length=255)
     link = models.URLField(max_length=255, primary_key=True)
-    date = models.DateField(auto_now_add=True)
-    users = models.ManyToManyField(CFUsers)
+    date = models.DateField(unique=True)
+    users = models.ManyToManyField(CFUsers, through=TargetSolves)
 
 
 class Submissions(models.Model):
+    STATUS_TRIED = 'T'
+    STATUS_SOLVED = 'S'
+    STATUS_CHOICES = [
+        (STATUS_TRIED, 'Tried'),
+        (STATUS_SOLVED, 'Solved'),
+    ]
+
     problem_link = models.URLField(max_length=255)
     problem_name = models.CharField(max_length=255)
     contest_id = models.IntegerField()
     problem_id = models.CharField(max_length=7)
+    status = models.CharField(max_length=1, choices=STATUS_CHOICES, default=STATUS_TRIED)
     user = models.ForeignKey(CFUsers, on_delete=models.CASCADE)

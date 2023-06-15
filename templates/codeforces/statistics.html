@@ -7,25 +7,37 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <title>CF Statistics</title>
 </head>
-<body>
-<table class="table table-dark">
-    <thead>
-    <tr>
-        <th>User/Problem</th>
-        {% for user in users %}
-            <th>{{ user.name }}</th>
-        {% endfor %}
-    </tr>
-    </thead>
-    <tbody>
-    {% for problem in problems %}
+<body class="bg-dark">
+<div class="container">
+    <table class="table table-sm table-dark table-responsive">
+        <thead>
         <tr>
-            {% for col in problem %}
-                <td>{{ col }}</td>
+            <th>User/Problem</th>
+            {% for user in users %}
+                <th>{{ user.name }}</th>
             {% endfor %}
         </tr>
-    {% endfor %}
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+        {% for problem in problems %}
+            <tr>
+                {% for col in problem %}
+                    <td
+                            {% if col == "R" %}
+                                class="bg-warning"
+                            {% elif col == "N" %}
+                                class="bg-danger"
+                            {% elif col == "T" %}
+                                class="bg-info"
+                            {% elif col == "S" %}
+                                class="bg-success"
+                            {% endif %}
+                    >{{ col }}</td>
+                {% endfor %}
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
 </body>
 </html>
