@@ -26,6 +26,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY')
 DEBUG = os.environ.get('DEBUG') == 'True'
 
 ALLOWED_HOSTS = ["contodo.mahmudul.cf", "127.0.0.1"]
+CSRF_TRUSTED_ORIGINS = ["https://contodo.mahmudul.cf", "http://127.0.0.1"]
 
 # Application definition
 
