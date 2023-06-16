@@ -5,7 +5,7 @@ class CFUsers(models.Model):
     handle = models.CharField(max_length=63, primary_key=True)
     name = models.CharField(max_length=255, blank=True, null=True)
     photo = models.URLField(max_length=255, blank=True, null=True)
-    last_submission = models.BigIntegerField(blank=True, null=True)
+    last_submission = models.DateTimeField(blank=True, null=True)
     last_online = models.DateTimeField(blank=True, null=True)
 
     def __str__(self):

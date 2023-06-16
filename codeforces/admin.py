@@ -13,7 +13,7 @@ class CFUsersAdmin(admin.ModelAdmin):
     def fetch_submissions(self, request, queryset):
         count = 0
         for user in queryset:
-            count += get_submissions(user.handle, 10)
+            count += get_submissions(user.handle, 20)
         self.message_user(request, f'{count} new submissions added')
 
     fetch_submissions.short_description = 'Fetch submissions'

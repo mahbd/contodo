@@ -42,7 +42,7 @@ def get_submissions(handle: str, count=10000) -> Union[bool, int]:
             sub.save()
             update_target_solve(problem_name, submission_status, submitted_at, user)
     last_submission = Submissions.objects.filter(user__handle=handle).order_by('-created_at').first().created_at
-    if last_submission > user.last_submission:
+    if user.last_submission is None or last_submission > user.last_submission:
         user.last_submission = last_submission
         user.save()
     return new_added
