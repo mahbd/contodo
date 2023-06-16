@@ -33,7 +33,7 @@ def get_submissions(handle: str, count=10000) -> Union[bool, int]:
             new_submission.problem_id = problem_id
             new_submission.user_id = user.handle
             new_submission.status = submission_status
-            new_submission.submitted_at = submitted_at
+            new_submission.created_at = submitted_at
             new_submission.save()
             new_added += 1
             if TargetProblems.objects.filter(problem_name=problem_name).exists():
