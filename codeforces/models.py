@@ -50,4 +50,5 @@ class Submissions(models.Model):
     contest_id = models.IntegerField()
     problem_id = models.CharField(max_length=7)
     status = models.CharField(max_length=1, choices=STATUS_CHOICES, default=STATUS_TRIED)
+    created_at = models.DateTimeField(blank=True, null=True)
     user = models.ForeignKey(CFUsers, on_delete=models.CASCADE)

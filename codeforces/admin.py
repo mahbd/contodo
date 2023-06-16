@@ -50,6 +50,6 @@ class TargetSolvesAdmin(admin.ModelAdmin):
 
 @admin.register(Submissions)
 class SubmissionsAdmin(admin.ModelAdmin):
-    list_display = ('problem_name', 'user', 'problem_link', 'status')
+    list_display = ('problem_name', 'user', 'problem_link', 'status', 'submitted_at')
     search_fields = ('problem_name', 'user__name', 'user__handle')
-    list_filter = ('user', 'contest_id', 'problem_name')
+    list_filter = ('submitted_at', 'user', 'contest_id', 'problem_name')

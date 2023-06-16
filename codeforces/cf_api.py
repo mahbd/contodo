@@ -7,6 +7,9 @@ import requests
 from .models import Submissions, CFUsers, TargetSolves, TargetProblems
 
 
+DHAKA_TZ = pytz.timezone('Asia/Dhaka')
+
+
 def get_submissions(handle: str, count=10000) -> Union[bool, int]:
     user = CFUsers.objects.filter(handle=handle).first()
     if not user:
@@ -19,6 +22,7 @@ def get_submissions(handle: str, count=10000) -> Union[bool, int]:
         contest_id = submission['problem']['contestId']
         problem_id = submission['problem']['index']
         problem_name = submission['problem']['name'].strip()
+        submitted_at = datetime.fromtimestamp(submission['creationTimeSeconds'], tz=DHAKA_TZ) + timedelta(hours=3)
         submission_status = Submissions.STATUS_SOLVED if submission['verdict'] == 'OK' else Submissions.STATUS_TRIED
         problem_link = f'https://codeforces.com/contest/{contest_id}/problem/{problem_id}'
         if not Submissions.objects.filter(problem_name=problem_name, user__handle=handle).exists():
@@ -29,6 +33,7 @@ def get_submissions(handle: str, count=10000) -> Union[bool, int]:
             new_submission.problem_id = problem_id
             new_submission.user_id = user.handle
             new_submission.status = submission_status
+            new_submission.submitted_at = submitted_at
             new_submission.save()
             new_added += 1
             if TargetProblems.objects.filter(problem_name=problem_name).exists():
