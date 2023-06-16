@@ -18,12 +18,8 @@ def get_submissions(handle: str, count=10000) -> Union[bool, int]:
         return False
     new_added = 0
     for submission in res.json()['result']:
-        contest_id = submission['problem']['contestId']
-        problem_id = submission['problem']['index']
-        problem_name = submission['problem']['name'].strip()
-        submitted_at = datetime.fromtimestamp(submission['creationTimeSeconds'], tz=DHAKA_TZ)
-        submission_status = Submissions.STATUS_SOLVED if submission['verdict'] == 'OK' else Submissions.STATUS_TRIED
-        problem_link = f'https://codeforces.com/contest/{contest_id}/problem/{problem_id}'
+        contest_id, problem_id, problem_link, problem_name, submission_status, submitted_at = extract_submission(
+            submission)
         if not Submissions.objects.filter(problem_name=problem_name, user__handle=handle).exists():
             new_submission = Submissions()
             new_submission.problem_name = problem_name
@@ -45,7 +41,21 @@ def get_submissions(handle: str, count=10000) -> Union[bool, int]:
             new_added += 1
             sub.save()
             update_target_solve(problem_name, submission_status, submitted_at, user)
+    last_submission = Submissions.objects.filter(user__handle=handle).order_by('-created_at').first().created_at
+    if last_submission > user.last_submission:
+        user.last_submission = last_submission
+        user.save()
     return new_added
+
+
+def extract_submission(submission):
+    contest_id = submission['problem']['contestId']
+    problem_id = submission['problem']['index']
+    problem_name = submission['problem']['name'].strip()
+    submitted_at = datetime.fromtimestamp(submission['creationTimeSeconds'], tz=DHAKA_TZ)
+    submission_status = Submissions.STATUS_SOLVED if submission['verdict'] == 'OK' else Submissions.STATUS_TRIED
+    problem_link = f'https://codeforces.com/contest/{contest_id}/problem/{problem_id}'
+    return contest_id, problem_id, problem_link, problem_name, submission_status, submitted_at
 
 
 def update_target_solve(problem_name, submission_status, submitted_at, user):
@@ -78,7 +88,7 @@ def update_last_online(handle: str) -> bool:
     user.save()
     if last_online.date() == datetime.today().date() and last_online.hour >= 6:
         target_solve = TargetSolves.objects.filter(user=user, problem__date=datetime.today().date()).first()
-        if target_solve:
+        if target_solve and target_solve.status == TargetSolves.STATUS_NOT_READ:
             target_solve.status = TargetSolves.STATUS_READ
             target_solve.save()
     return True
