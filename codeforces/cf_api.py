@@ -6,7 +6,6 @@ import requests
 
 from .models import Submissions, CFUsers, TargetSolves, TargetProblems
 
-
 DHAKA_TZ = pytz.timezone('Asia/Dhaka')
 
 
@@ -36,21 +35,33 @@ def get_submissions(handle: str, count=10000) -> Union[bool, int]:
             new_submission.created_at = submitted_at
             new_submission.save()
             new_added += 1
-            if TargetProblems.objects.filter(problem_name=problem_name).exists():
-                target_solve = TargetSolves.objects.filter(user=user, problem__problem_name=problem_name).first()
-                if not target_solve:
-                    target_solve = TargetSolves()
-                    target_solve.user = user
-                    target_solve.problem = TargetProblems.objects.filter(problem_name=problem_name).first()
-                    target_solve.status = TargetSolves.STATUS_SOLVED if submission_status == Submissions.STATUS_SOLVED \
-                        else TargetSolves.STATUS_TRIED
-                else:
-                    target_solve.status = TargetSolves.STATUS_SOLVED if submission_status == Submissions.STATUS_SOLVED \
-                        else TargetSolves.STATUS_TRIED
-                target_solve.last_change = submitted_at
-                target_solve.save()
-
+            update_target_solve(problem_name, submission_status, submitted_at, user)
+        elif submitted_at > Submissions.objects.filter(problem_name=problem_name,
+                                                       user__handle=handle).first().created_at \
+                and submission_status == Submissions.STATUS_SOLVED:
+            sub = Submissions.objects.filter(problem_name=problem_name, user__handle=handle).first()
+            sub.status = submission_status
+            sub.created_at = submitted_at
+            new_added += 1
+            sub.save()
+            update_target_solve(problem_name, submission_status, submitted_at, user)
     return new_added
+
+
+def update_target_solve(problem_name, submission_status, submitted_at, user):
+    if TargetProblems.objects.filter(problem_name=problem_name).exists():
+        target_solve = TargetSolves.objects.filter(user=user, problem__problem_name=problem_name).first()
+        if not target_solve:
+            target_solve = TargetSolves()
+            target_solve.user = user
+            target_solve.problem = TargetProblems.objects.filter(problem_name=problem_name).first()
+            target_solve.status = TargetSolves.STATUS_SOLVED if submission_status == Submissions.STATUS_SOLVED \
+                else TargetSolves.STATUS_TRIED
+        else:
+            target_solve.status = TargetSolves.STATUS_SOLVED if submission_status == Submissions.STATUS_SOLVED \
+                else TargetSolves.STATUS_TRIED
+        target_solve.last_change = submitted_at
+        target_solve.save()
 
 
 def update_last_online(handle: str) -> bool:
