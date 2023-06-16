@@ -7,7 +7,7 @@ from .models import CFUsers, TargetProblems, TargetSolves, Submissions
 @admin.register(CFUsers)
 class CFUsersAdmin(admin.ModelAdmin):
     actions = ['fetch_submissions', 'fetch_all_submissions', 'update_last_online']
-    list_display = ('handle', 'name', 'photo', 'last_submission')
+    list_display = ('handle', 'name', 'last_online', 'last_submission')
     search_fields = ('handle', 'name')
 
     def fetch_submissions(self, request, queryset):
