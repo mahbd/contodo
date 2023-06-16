@@ -22,7 +22,7 @@ def get_submissions(handle: str, count=10000) -> Union[bool, int]:
         contest_id = submission['problem']['contestId']
         problem_id = submission['problem']['index']
         problem_name = submission['problem']['name'].strip()
-        submitted_at = datetime.fromtimestamp(submission['creationTimeSeconds'], tz=DHAKA_TZ) + timedelta(hours=3)
+        submitted_at = datetime.fromtimestamp(submission['creationTimeSeconds'], tz=DHAKA_TZ)
         submission_status = Submissions.STATUS_SOLVED if submission['verdict'] == 'OK' else Submissions.STATUS_TRIED
         problem_link = f'https://codeforces.com/contest/{contest_id}/problem/{problem_id}'
         if not Submissions.objects.filter(problem_name=problem_name, user__handle=handle).exists():
@@ -44,6 +44,10 @@ def get_submissions(handle: str, count=10000) -> Union[bool, int]:
                     target_solve.problem = TargetProblems.objects.filter(problem_name=problem_name).first()
                     target_solve.status = TargetSolves.STATUS_SOLVED if submission_status == Submissions.STATUS_SOLVED \
                         else TargetSolves.STATUS_TRIED
+                else:
+                    target_solve.status = TargetSolves.STATUS_SOLVED if submission_status == Submissions.STATUS_SOLVED \
+                        else TargetSolves.STATUS_TRIED
+                target_solve.last_change = submitted_at
                 target_solve.save()
 
     return new_added

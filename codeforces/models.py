@@ -52,3 +52,6 @@ class Submissions(models.Model):
     status = models.CharField(max_length=1, choices=STATUS_CHOICES, default=STATUS_TRIED)
     created_at = models.DateTimeField(blank=True, null=True)
     user = models.ForeignKey(CFUsers, on_delete=models.CASCADE)
+
+    class Meta:
+        ordering = ['-created_at']
