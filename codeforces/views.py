@@ -48,6 +48,7 @@ def _update_statistics():
     for user in CFUsers.objects.all():
         time.sleep(0.5)
         update_last_online(user.handle)
+        time.sleep(0.5)
         get_submissions(user.handle, 20)
 
 
