@@ -22,7 +22,7 @@
         <tbody>
         {% for problem in problems %}
             <tr>
-                {% for col in problem %}
+                {% for link, col in problem %}
                     <td
                             {% if col == "R" %}
                                 class="bg-warning"
@@ -35,7 +35,12 @@
                             {% else %}
                                 class="text-nowrap"
                             {% endif %}
-                    >{{ col|safe }}</td>
+                    >{% if link != col %}
+                        <a href="{{ link }}">{{ col }}</a>
+                    {% else %}
+                        {{ col }}
+                    {% endif %}
+                    </td>
                 {% endfor %}
             </tr>
         {% endfor %}

@@ -30,12 +30,12 @@ def statistics(request):
     users = CFUsers.objects.all().order_by('name')
     problems = []
     for problem in TargetProblems.objects.all().order_by('-date'):
-        problem_row = [format_html(f'<a href="{problem.link}">{problem.problem_name}</a>')]
+        problem_row = [[problem.link, problem.problem_name]]
         for solve in problem.targetsolves_set.all().order_by('user__name'):
             if solve.submission_link:
-                problem_row.append(format_html(f'<a href="{solve.submission_link}">{solve.status}</a>'))
+                problem_row.append([solve.submission_link, solve.status])
             else:
-                problem_row.append(solve.status)
+                problem_row.append([solve.status, solve.status])
         problems.append(problem_row)
     return render(request, 'codeforces/statistics.html', {
         'users': users,
@@ -47,9 +47,9 @@ def statistics(request):
 def _update_statistics():
     for user in CFUsers.objects.all():
         update_last_online(user.handle)
-        time.sleep(.1)
+        time.sleep(0.2)
         get_submissions(user.handle, 20)
-        time.sleep(.1)
+        time.sleep(0.2)
 
 
 def update_statistics(request):
