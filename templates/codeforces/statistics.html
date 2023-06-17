@@ -51,9 +51,7 @@
         fetch(url)
             .then(response => response.status)
             .then(status => {
-                console.log(status);
                 if (status === 200) {
-                    alert('Update success');
                     location.reload();
                 } else {
                     alert('Update failed');
