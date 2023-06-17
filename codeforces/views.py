@@ -1,7 +1,13 @@
+import threading
+import time
+
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.http import HttpResponse
 from django.shortcuts import render
+from django.urls import reverse
 
+from .cf_api import update_last_online, get_submissions
 from .models import CFUsers, TargetSolves, TargetProblems
 
 
@@ -31,4 +37,23 @@ def statistics(request):
     return render(request, 'codeforces/statistics.html', {
         'users': users,
         'problems': problems,
+        'update_url': reverse('codeforces:update_statistics_sync')
     })
+
+
+def _update_statistics():
+    for user in CFUsers.objects.all():
+        update_last_online(user.handle)
+        time.sleep(1)
+        get_submissions(user.handle, 20)
+        time.sleep(1)
+
+
+def update_statistics(request):
+    threading.Thread(target=_update_statistics).start()
+    return HttpResponse('Updating statistics')
+
+
+def update_statistics_sync(request):
+    _update_statistics()
+    return HttpResponse('Updating statistics')

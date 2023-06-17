@@ -55,3 +55,11 @@ class Submissions(models.Model):
 
     class Meta:
         ordering = ['-created_at']
+
+
+class Logs(models.Model):
+    message = models.CharField(max_length=255)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']

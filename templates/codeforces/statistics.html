@@ -9,6 +9,7 @@
 </head>
 <body class="bg-dark">
 <div class="container">
+    <button id="update-button" class="btn btn-primary" onclick="update_stat()">Update</button>
     <table class="table table-sm table-dark table-responsive">
         <thead>
         <tr>
@@ -39,5 +40,25 @@
         </tbody>
     </table>
 </div>
+<p class="d-none" id="update-url">{{ update_url }}</p>
 </body>
+<script>
+    function update_stat() {
+        const button = document.getElementById('update-button');
+        button.disabled = true;
+        button.innerText = 'Updating...';
+        const url = document.getElementById('update-url').innerText;
+        fetch(url)
+            .then(response => response.status)
+            .then(status => {
+                console.log(status);
+                if (status === 200) {
+                    alert('Update success');
+                    location.reload();
+                } else {
+                    alert('Update failed');
+                }
+            });
+    }
+</script>
 </html>

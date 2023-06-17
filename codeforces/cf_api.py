@@ -4,7 +4,7 @@ from typing import Union
 import pytz
 import requests
 
-from .models import Submissions, CFUsers, TargetSolves, TargetProblems
+from .models import Submissions, CFUsers, TargetSolves, TargetProblems, Logs
 
 DHAKA_TZ = pytz.timezone('Asia/Dhaka')
 
@@ -12,9 +12,11 @@ DHAKA_TZ = pytz.timezone('Asia/Dhaka')
 def get_submissions(handle: str, count=10000) -> Union[bool, int]:
     user = CFUsers.objects.filter(handle=handle).first()
     if not user:
+        Logs.objects.create(log=f'User {handle} failed to get submission due to user not found')
         return False
     res = requests.get(f'https://codeforces.com/api/user.status?handle={handle}&from=1&count={count}')
     if res.status_code != 200:
+        Logs.objects.create(log=f'User {handle} failed to get submission due to invalid response')
         return False
     new_added = 0
     for submission in res.json()['result']:
@@ -77,12 +79,14 @@ def update_target_solve(problem_name, submission_status, submitted_at, user):
 def update_last_online(handle: str) -> bool:
     res = requests.get(f'https://codeforces.com/api/user.info?handles={handle}')
     if res.status_code != 200:
+        Logs.objects.create(log=f'User {handle} failed to update last online time due to API error.')
         return False
     last_online = res.json()['result'][0]['lastOnlineTimeSeconds']
     last_online = datetime.fromtimestamp(last_online,
                                          tz=pytz.timezone('Asia/Dhaka')) + timedelta(hours=3)
     user = CFUsers.objects.filter(handle=handle).first()
     if not user:
+        Logs.objects.create(log=f'User {handle} failed to update last online time due to user not found.')
         return False
     user.last_online = last_online
     user.save()

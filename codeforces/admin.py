@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 from .cf_api import get_submissions, update_last_online
-from .models import CFUsers, TargetProblems, TargetSolves, Submissions
+from .models import CFUsers, TargetProblems, TargetSolves, Submissions, Logs
 
 
 @admin.register(CFUsers)
@@ -53,3 +53,10 @@ class SubmissionsAdmin(admin.ModelAdmin):
     list_display = ('problem_name', 'user', 'problem_link', 'status', 'created_at')
     search_fields = ('problem_name', 'user__name', 'user__handle')
     list_filter = ('created_at', 'user', 'contest_id', 'problem_name')
+
+
+@admin.register(Logs)
+class LogsAdmin(admin.ModelAdmin):
+    list_display = ('log', 'created_at')
+    search_fields = ('log',)
+    list_filter = ('created_at',)
