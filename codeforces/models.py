@@ -27,6 +27,7 @@ class TargetSolves(models.Model):
     user = models.ForeignKey(CFUsers, on_delete=models.CASCADE)
     problem = models.ForeignKey('TargetProblems', on_delete=models.CASCADE)
     status = models.CharField(max_length=3, choices=STATUS_CHOICES, default=STATUS_NOT_READ)
+    submission_link = models.URLField(max_length=255, blank=True, null=True)
     last_change = models.DateTimeField(blank=True, null=True)
 
 

@@ -20,7 +20,7 @@ def get_submissions(handle: str, count=10000) -> Union[bool, int]:
         return False
     new_added = 0
     for submission in res.json()['result']:
-        contest_id, problem_id, problem_link, problem_name, submission_status, submitted_at = extract_submission(
+        contest_id, problem_id, problem_link, problem_name, sub_status, sub_at, sub_link = extract_submission(
             submission)
         if not Submissions.objects.filter(problem_name=problem_name, user__handle=handle).exists():
             new_submission = Submissions()
@@ -29,20 +29,20 @@ def get_submissions(handle: str, count=10000) -> Union[bool, int]:
             new_submission.contest_id = contest_id
             new_submission.problem_id = problem_id
             new_submission.user_id = user.handle
-            new_submission.status = submission_status
-            new_submission.created_at = submitted_at
+            new_submission.status = sub_status
+            new_submission.created_at = sub_at
             new_submission.save()
             new_added += 1
-            update_target_solve(problem_name, submission_status, submitted_at, user)
-        elif submitted_at > Submissions.objects.filter(problem_name=problem_name,
-                                                       user__handle=handle).first().created_at \
-                and submission_status == Submissions.STATUS_SOLVED:
+            update_target_solve(problem_name, sub_status, sub_at, user, sub_link)
+        elif sub_at > Submissions.objects.filter(problem_name=problem_name,
+                                                 user__handle=handle).first().created_at \
+                and sub_status == Submissions.STATUS_SOLVED:
             sub = Submissions.objects.filter(problem_name=problem_name, user__handle=handle).first()
-            sub.status = submission_status
-            sub.created_at = submitted_at
+            sub.status = sub_status
+            sub.created_at = sub_at
             new_added += 1
             sub.save()
-            update_target_solve(problem_name, submission_status, submitted_at, user)
+            update_target_solve(problem_name, sub_status, sub_at, user, sub_link)
     last_submission = Submissions.objects.filter(user__handle=handle).order_by('-created_at').first().created_at
     if user.last_submission is None or last_submission > user.last_submission:
         user.last_submission = last_submission
@@ -51,16 +51,17 @@ def get_submissions(handle: str, count=10000) -> Union[bool, int]:
 
 
 def extract_submission(submission):
-    contest_id = submission['problem']['contestId']
+    contest_id = submission['contestId']
     problem_id = submission['problem']['index']
     problem_name = submission['problem']['name'].strip()
     submitted_at = datetime.fromtimestamp(submission['creationTimeSeconds'], tz=DHAKA_TZ)
     submission_status = Submissions.STATUS_SOLVED if submission['verdict'] == 'OK' else Submissions.STATUS_TRIED
     problem_link = f'https://codeforces.com/contest/{contest_id}/problem/{problem_id}'
-    return contest_id, problem_id, problem_link, problem_name, submission_status, submitted_at
+    submission_link = f'https://codeforces.com/contest/{contest_id}/submission/{submission["id"]}'
+    return contest_id, problem_id, problem_link, problem_name, submission_status, submitted_at, submission_link
 
 
-def update_target_solve(problem_name, submission_status, submitted_at, user):
+def update_target_solve(problem_name, submission_status, submitted_at, user, sub_link):
     if TargetProblems.objects.filter(problem_name=problem_name).exists():
         target_solve = TargetSolves.objects.filter(user=user, problem__problem_name=problem_name).first()
         if not target_solve:
@@ -69,9 +70,11 @@ def update_target_solve(problem_name, submission_status, submitted_at, user):
             target_solve.problem = TargetProblems.objects.filter(problem_name=problem_name).first()
             target_solve.status = TargetSolves.STATUS_SOLVED if submission_status == Submissions.STATUS_SOLVED \
                 else TargetSolves.STATUS_TRIED
+            target_solve.submission_link = sub_link
         else:
             target_solve.status = TargetSolves.STATUS_SOLVED if submission_status == Submissions.STATUS_SOLVED \
                 else TargetSolves.STATUS_TRIED
+            target_solve.submission_link = sub_link
         target_solve.last_change = submitted_at
         target_solve.save()
 

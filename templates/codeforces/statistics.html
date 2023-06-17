@@ -35,7 +35,7 @@
                             {% else %}
                                 class="text-nowrap"
                             {% endif %}
-                    >{{ col }}</td>
+                    >{{ col|safe }}</td>
                 {% endfor %}
             </tr>
         {% endfor %}

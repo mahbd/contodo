@@ -6,6 +6,7 @@ from django.dispatch import receiver
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.urls import reverse
+from django.utils.html import format_html
 
 from .cf_api import update_last_online, get_submissions
 from .models import CFUsers, TargetSolves, TargetProblems
@@ -29,11 +30,13 @@ def statistics(request):
     users = CFUsers.objects.all().order_by('name')
     problems = []
     for problem in TargetProblems.objects.all().order_by('-date'):
-        problem_row = [problem.problem_name]
+        problem_row = [format_html(f'<a href="{problem.problem_link}">{problem.problem_name}</a>')]
         for solve in problem.targetsolves_set.all().order_by('user__name'):
-            problem_row.append(solve.status)
+            if solve.submission_link:
+                problem_row.append(format_html(f'<a href="{solve.submission_link}">{solve.status}</a>'))
+            else:
+                problem_row.append(solve.status)
         problems.append(problem_row)
-    print(problems)
     return render(request, 'codeforces/statistics.html', {
         'users': users,
         'problems': problems,
