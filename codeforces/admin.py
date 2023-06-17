@@ -57,6 +57,6 @@ class SubmissionsAdmin(admin.ModelAdmin):
 
 @admin.register(Logs)
 class LogsAdmin(admin.ModelAdmin):
-    list_display = ('log', 'created_at')
-    search_fields = ('log',)
+    list_display = ('message', 'created_at')
+    search_fields = ('message',)
     list_filter = ('created_at',)
