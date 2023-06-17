@@ -30,7 +30,7 @@ def statistics(request):
     users = CFUsers.objects.all().order_by('name')
     problems = []
     for problem in TargetProblems.objects.all().order_by('-date'):
-        problem_row = [format_html(f'<a href="{problem.problem_link}">{problem.problem_name}</a>')]
+        problem_row = [format_html(f'<a href="{problem.link}">{problem.problem_name}</a>')]
         for solve in problem.targetsolves_set.all().order_by('user__name'):
             if solve.submission_link:
                 problem_row.append(format_html(f'<a href="{solve.submission_link}">{solve.status}</a>'))
